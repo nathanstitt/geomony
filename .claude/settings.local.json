@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:transistorsoft.github.io)",
+      "Bash(yarn typecheck:*)",
+      "Bash(yarn lint:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(gh api:*)",
+      "WebFetch(domain:api.expo.dev)",
+      "WebFetch(domain:cdp.expo.dev)",
+      "Bash(yarn example:*)",
+      "Bash(tee /private/tmp/claude/build.log)",
+      "Bash(tee /private/tmp/claude/build3.log)",
+      "WebFetch(domain:github.com)",
+      "Bash(xcodebuild -workspace /Users/nas/code/geotrack/example/ios/GeotrackExample.xcworkspace -scheme GeotrackExample -sdk iphonesimulator -configuration Debug build)",
+      "Bash(grep -v \"^$\")",
+      "Bash(NODE_OPTIONS=\"--localstorage-file=$TMPDIR/node-localstorage\" npx jest --watchAll=false --no-watchman 2>&1)",
+      "Bash(yarn test:*)",
+      "Bash(npx jest:*)",
+      "Bash(pod install:*)",
+      "Bash(xcodebuild -workspace example/ios/GeotrackExample.xcworkspace -scheme GeotrackExample -sdk iphonesimulator -configuration Debug build)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
+  }
+}

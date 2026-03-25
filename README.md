@@ -1,37 +1,194 @@
-# rn-geotrackgeotrack
+# Geotrack
 
-Background Geolocation, battery-conscious background location-tracking & geofencing SDKReact Native Background Geolocation
+Battery-conscious background location tracking & geofencing SDK for React Native.
+
+Built as a [Turbo Module](https://reactnative.dev/docs/the-new-architecture/pillars-turbomodules) with shared C++17 core logic and thin platform bridges for iOS and Android.
+
+## Features
+
+- Background location tracking with configurable accuracy and distance filters
+- Geofencing with ENTER, EXIT, and DWELL events
+- Schedule-based tracking windows
+- SQLite-backed persistent location storage
+- Motion-change detection (MOVING / STATIONARY state machine)
+- Foreground service support on Android
 
 ## Installation
 
-
 ```sh
-npm install rn-geotrackgeotrack
+yarn add geotrack
 ```
 
+### iOS
+
+```sh
+cd ios && pod install
+```
+
+### Android
+
+No additional steps — the native module is auto-linked.
 
 ## Usage
 
+```typescript
+import {
+  configure,
+  start,
+  stop,
+  onLocation,
+  onMotionChange,
+  addGeofence,
+  onGeofence,
+} from 'geotrack';
 
-```js
-import { multiply } from 'rn-geotrackgeotrack';
+// Configure
+await configure({
+  desiredAccuracy: -1,
+  distanceFilter: 10,
+  stopOnTerminate: false,
+  startOnBoot: true,
+  debug: false,
+});
 
-// ...
+// Subscribe to location updates
+const locationSub = onLocation((location) => {
+  console.log('[location]', location.latitude, location.longitude);
+});
 
-const result = multiply(3, 7);
+// Subscribe to motion changes
+const motionSub = onMotionChange((event) => {
+  console.log('[motion]', event.isMoving ? 'MOVING' : 'STATIONARY');
+});
+
+// Start tracking
+await start();
+
+// Add a geofence
+await addGeofence({
+  identifier: 'home',
+  latitude: 40.785091,
+  longitude: -73.968285,
+  radius: 200,
+  notifyOnEntry: true,
+  notifyOnExit: true,
+  notifyOnDwell: false,
+  loiteringDelay: 0,
+});
+
+// Subscribe to geofence events
+const geofenceSub = onGeofence((event) => {
+  console.log('[geofence]', event.identifier, event.action);
+});
+
+// Stop tracking
+await stop();
+
+// Clean up subscriptions
+locationSub.remove();
+motionSub.remove();
+geofenceSub.remove();
 ```
 
+## API
 
-## Contributing
+### Tracking
 
-- [Development workflow](CONTRIBUTING.md#development-workflow)
-- [Sending a pull request](CONTRIBUTING.md#sending-a-pull-request)
-- [Code of conduct](CODE_OF_CONDUCT.md)
+| Function | Returns | Description |
+|----------|---------|-------------|
+| `configure(config)` | `Promise<State>` | Set configuration options. Partial configs are merged with defaults. |
+| `start()` | `Promise<State>` | Start location tracking. |
+| `stop()` | `Promise<State>` | Stop location tracking. |
+| `getState()` | `Promise<State>` | Get current tracking state. |
+
+### Location Storage
+
+| Function | Returns | Description |
+|----------|---------|-------------|
+| `getLocations()` | `Promise<Location[]>` | Retrieve all stored locations. |
+| `getCount()` | `Promise<number>` | Get count of stored locations. |
+| `destroyLocations()` | `Promise<boolean>` | Delete all stored locations. |
+
+### Geofencing
+
+| Function | Returns | Description |
+|----------|---------|-------------|
+| `addGeofence(geofence)` | `Promise<boolean>` | Register a geofence. |
+| `removeGeofence(identifier)` | `Promise<boolean>` | Remove a geofence by identifier. |
+| `removeGeofences()` | `Promise<boolean>` | Remove all geofences. |
+| `getGeofences()` | `Promise<Geofence[]>` | Get all registered geofences. |
+
+### Scheduling
+
+| Function | Returns | Description |
+|----------|---------|-------------|
+| `startSchedule()` | `Promise<State>` | Start schedule-based tracking. |
+| `stopSchedule()` | `Promise<State>` | Stop schedule-based tracking. |
+
+### Events
+
+| Function | Event Data | Description |
+|----------|------------|-------------|
+| `onLocation(callback)` | `Location` | Fired on each new location. |
+| `onGeofence(callback)` | `GeofenceEvent` | Fired on geofence ENTER, EXIT, or DWELL. |
+| `onMotionChange(callback)` | `MotionChangeEvent` | Fired when motion state changes. |
+| `onSchedule(callback)` | `ScheduleEvent` | Fired when a schedule window starts or stops. |
+
+All event subscribers return a `Subscription` with a `remove()` method.
+
+### Config
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `desiredAccuracy` | `number` | `-1` | GPS accuracy (platform-specific). |
+| `distanceFilter` | `number` | `10` | Minimum distance (meters) between updates. |
+| `stationaryRadius` | `number` | `25` | Radius (meters) for stationary detection. |
+| `stopTimeout` | `number` | `5` | Minutes without movement before entering STATIONARY. |
+| `debug` | `boolean` | `false` | Enable debug logging and sound effects. |
+| `stopOnTerminate` | `boolean` | `true` | Stop tracking when the app is terminated. |
+| `startOnBoot` | `boolean` | `false` | Resume tracking after device reboot. |
+| `url` | `string` | `''` | URL for automatic location sync. |
+| `schedule` | `string[]` | — | Schedule windows for time-based tracking. |
+| `scheduleUseAlarmManager` | `boolean` | — | Use AlarmManager for schedule triggers (Android). |
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────┐
+│  TypeScript API  (src/)                     │
+│  configure · start · stop · onLocation · …  │
+└──────────────────┬──────────────────────────┘
+                   │ JSON strings
+┌──────────────────┴──────────────────────────┐
+│  C++ Core  (cpp/)                           │
+│  State machine · SQLite store · Config      │
+├─────────────────┬───────────────────────────┤
+│  iOS Bridge     │  Android Bridge           │
+│  (Obj-C++)      │  (Kotlin + JNI)           │
+│  CLLocationMgr  │  FusedLocationProvider    │
+│                 │  ForegroundService        │
+└─────────────────┴───────────────────────────┘
+```
+
+- **C++ core** (`cpp/`) — Platform-agnostic business logic: state machine (UNKNOWN -> MOVING <-> STATIONARY), SQLite location storage, config management, geofence tracking, and scheduling.
+- **iOS bridge** (`ios/`) — `CLLocationManager`-based location delegate, Turbo Module entry point.
+- **Android bridge** (`android/`) — `FusedLocationProviderClient`, foreground service for background tracking, JNI layer to C++ core.
+- **TypeScript layer** (`src/`) — Thin wrapper over the Turbo Module. All native methods exchange JSON strings across the JS-Native boundary.
+
+## Development
+
+```sh
+yarn                    # Install dependencies
+yarn typecheck          # Type-check with TypeScript
+yarn lint               # Lint with ESLint
+yarn test               # Run Jest tests
+yarn example start      # Start Metro bundler for example app
+yarn example ios        # Build & run example on iOS
+yarn example android    # Build & run example on Android
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full development workflow.
 
 ## License
 
 MIT
-
----
-
-Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
