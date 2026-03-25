@@ -1,5 +1,5 @@
 {
-  "name": "rn-geotrackgeotrack",
+  "name": "geotrack",
   "version": "0.1.0",
   "description": "Background Geolocation, battery-conscious background location-tracking & geofencing SDKReact Native Background Geolocation",
   "main": "./lib/module/index.js",
@@ -32,13 +32,14 @@
     "!**/.*"
   ],
   "scripts": {
-    "example": "yarn workspace rn-geotrackgeotrack-example",
+    "example": "yarn workspace geotrack-example",
     "clean": "del-cli lib",
     "prepare": "bob build",
     "typecheck": "tsc",
-    "test": "jest",
+    "test": "NODE_OPTIONS=\"--localstorage-file=$(mktemp ${TMPDIR:-/tmp}/jest-ls.XXXXXX)\" jest --runInBand",
     "release": "release-it --only-version",
-    "lint": "eslint \"**/*.{js,ts,tsx}\""
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "build:ios": "xcodebuild -workspace example/ios/GeotrackExample.xcworkspace -scheme GeotrackExample -sdk iphonesimulator -configuration Debug build"
   },
   "keywords": [
     "react-native",
@@ -110,11 +111,11 @@
     ]
   },
   "codegenConfig": {
-    "name": "RnGeotrackgeotrackSpec",
+    "name": "GeotrackSpec",
     "type": "modules",
     "jsSrcsDir": "src",
     "android": {
-      "javaPackageName": "com.rngeotrackgeotrack"
+      "javaPackageName": "com.geotrack"
     }
   },
   "jest": {
@@ -122,6 +123,10 @@
     "modulePathIgnorePatterns": [
       "<rootDir>/example/node_modules",
       "<rootDir>/lib/"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "<rootDir>/src/__tests__/harness/"
     ]
   },
   "commitlint": {

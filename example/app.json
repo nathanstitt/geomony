@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "RnGeotrackgeotrack Example",
-    "slug": "rn-geotrackgeotrack-example",
+    "name": "Geotrack Example",
+    "slug": "geotrack-example",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,7 +13,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "rngeotrackgeotrack.example"
+      "bundleIdentifier": "com.geotrack.example",
+      "infoPlist": {
+        "UIBackgroundModes": ["location"]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +25,7 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "package": "rngeotrackgeotrack.example"
+      "package": "com.geotrack.example"
     },
     "web": {
       "favicon": "./assets/favicon.png"

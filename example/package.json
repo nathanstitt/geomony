@@ -1,5 +1,5 @@
 {
-  "name": "rn-geotrackgeotrack-example",
+  "name": "geotrack-example",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -8,10 +8,16 @@
     "ios": "expo run:ios"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "~2.1.2",
+    "@react-navigation/native": "^7.1.6",
+    "@react-navigation/native-stack": "^7.3.10",
     "expo": "~55.0.8",
     "expo-status-bar": "~55.0.4",
     "react": "19.2.0",
-    "react-native": "0.83.2"
+    "react-native": "0.83.2",
+    "react-native-maps": "^1.20.1",
+    "react-native-safe-area-context": "~5.4.0",
+    "react-native-screens": "~4.11.1"
   },
   "private": true,
   "devDependencies": {

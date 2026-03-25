@@ -2,7 +2,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "rn-geotrackgeotrack": ["./src/index"]
+      "geotrack": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
