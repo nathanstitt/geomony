@@ -1,12 +1,14 @@
+const path = require('path');
+
 module.exports = {
   dependency: {
     platforms: {
       ios: {
-        podspecPath: __dirname + '/Geomony.podspec',
+        podspecPath: path.join(__dirname, 'Geomony.podspec'),
       },
       android: {
-        sourceDir: __dirname + '/android',
-        cmakeListsPath: __dirname + '/cpp/CMakeLists.txt',
+        sourceDir: path.join(__dirname, 'android'),
+        cmakeListsPath: path.join(__dirname, 'cpp', 'CMakeLists.txt'),
       },
     },
   },
