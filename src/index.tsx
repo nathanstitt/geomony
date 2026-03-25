@@ -24,6 +24,7 @@ export type {
   ScheduleEvent,
   State,
   Subscription,
+  SyncState,
 } from './types';
 
 const emitter = new NativeEventEmitter(NativeGeomony);

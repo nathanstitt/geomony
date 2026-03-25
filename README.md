@@ -169,6 +169,7 @@ When multiple rules overlap, tracking is active if *any* rule matches. The sched
 | `onLocation(callback)` | `Location` | Fired on each new location. |
 | `onGeofence(callback)` | `GeofenceEvent` | Fired on geofence ENTER, EXIT, or DWELL. |
 | `onMotionChange(callback)` | `MotionChangeEvent` | Fired when motion state changes. |
+| `onActivityChange(callback)` | `ActivityChangeEvent` | Fired when detected activity changes (walking, driving, etc). |
 | `onSchedule(callback)` | `ScheduleEvent` | Fired when a schedule window starts or stops. |
 
 All event subscribers return a `Subscription` with a `remove()` method.
@@ -234,6 +235,7 @@ The `getState()` response includes a `sync` object:
 | `syncThreshold` | `number` | `5` | Number of unsynced locations before a sync is triggered. |
 | `maxBatchSize` | `number` | `100` | Maximum locations per HTTP POST request. |
 | `syncRetryBaseSeconds` | `number` | `10` | Base delay (seconds) for exponential backoff on sync failure. |
+| `enabled` | `boolean` | `false` | Whether tracking is currently enabled. |
 | `schedule` | `string[]` | — | Schedule windows for time-based tracking. |
 | `scheduleUseAlarmManager` | `boolean` | — | Use AlarmManager for schedule triggers (Android). |
 

@@ -41,9 +41,19 @@ export interface Config {
   stopOnTerminate: boolean;
   startOnBoot: boolean;
   url: string;
+  syncThreshold: number;
+  maxBatchSize: number;
+  syncRetryBaseSeconds: number;
   enabled: boolean;
   schedule?: string[];
   scheduleUseAlarmManager?: boolean;
+}
+
+export interface SyncState {
+  enabled: boolean;
+  connected: boolean;
+  syncInFlight: boolean;
+  unsyncedCount: number;
 }
 
 export interface State {
@@ -52,6 +62,7 @@ export interface State {
   isMoving: boolean;
   schedulerRunning: boolean;
   activity?: Activity;
+  sync: SyncState;
   config: Config;
 }
 
