@@ -24,7 +24,9 @@
       "Bash(git commit:*)",
       "WebFetch(domain:registry.npmjs.org)",
       "Bash(cpp/build/geomony_tests 2>&1)",
-      "Bash(npm pack:*)"
+      "Bash(npm pack:*)",
+      "WebSearch",
+      "WebFetch(domain:sqlite.org)"
     ]
   },
   "sandbox": {
