@@ -33,57 +33,68 @@ export type {
   SyncState,
 } from './types';
 
-const emitter = new NativeEventEmitter(NativeGeomony);
+function getNativeModule() {
+  if (!NativeGeomony) {
+    throw new Error(
+      'Geomony native module is not available. This library is not supported on web.'
+    );
+  }
+  return NativeGeomony;
+}
+
+const emitter = NativeGeomony ? new NativeEventEmitter(NativeGeomony) : null;
+
+export const isAvailable = NativeGeomony != null;
 
 export async function configure(config: Partial<Config>): Promise<State> {
   const json = JSON.stringify(config);
-  const result = await NativeGeomony.configure(json);
+  const result = await getNativeModule().configure(json);
   return JSON.parse(result) as State;
 }
 
 export async function start(): Promise<State> {
-  const result = await NativeGeomony.start();
+  const result = await getNativeModule().start();
   return JSON.parse(result) as State;
 }
 
 export async function stop(): Promise<State> {
-  const result = await NativeGeomony.stop();
+  const result = await getNativeModule().stop();
   return JSON.parse(result) as State;
 }
 
 export async function getState(): Promise<State> {
-  const result = await NativeGeomony.getState();
+  const result = await getNativeModule().getState();
   return JSON.parse(result) as State;
 }
 
 export async function getLocations(): Promise<Location[]> {
-  const result = await NativeGeomony.getLocations();
+  const result = await getNativeModule().getLocations();
   return JSON.parse(result) as Location[];
 }
 
 export async function getCount(): Promise<number> {
-  return NativeGeomony.getCount();
+  return getNativeModule().getCount();
 }
 
 export async function destroyLocations(): Promise<boolean> {
-  return NativeGeomony.destroyLocations();
+  return getNativeModule().destroyLocations();
 }
 
 export async function addGeofence(geofence: Geofence): Promise<boolean> {
   const json = JSON.stringify(geofence);
-  return NativeGeomony.addGeofence(json);
+  return getNativeModule().addGeofence(json);
 }
 
 export async function removeGeofence(identifier: string): Promise<boolean> {
-  return NativeGeomony.removeGeofence(identifier);
+  return getNativeModule().removeGeofence(identifier);
 }
 
 export async function removeGeofences(): Promise<boolean> {
-  return NativeGeomony.removeGeofences();
+  return getNativeModule().removeGeofences();
 }
 
 export async function getGeofences(): Promise<Geofence[]> {
-  const result = await NativeGeomony.getGeofences();
+  const result = await getNativeModule().getGeofences();
   return JSON.parse(result) as Geofence[];
 }
 
@@ -96,16 +107,16 @@ export async function addGeofences(geofences: Geofence[]): Promise<boolean> {
 }
 
 export async function getGeofenceEvents(): Promise<PersistedGeofenceEvent[]> {
-  const result = await NativeGeomony.getGeofenceEvents();
+  const result = await getNativeModule().getGeofenceEvents();
   return JSON.parse(result) as PersistedGeofenceEvent[];
 }
 
 export async function getGeofenceEventCount(): Promise<number> {
-  return NativeGeomony.getGeofenceEventCount();
+  return getNativeModule().getGeofenceEventCount();
 }
 
 export async function destroyGeofenceEvents(): Promise<boolean> {
-  return NativeGeomony.destroyGeofenceEvents();
+  return getNativeModule().destroyGeofenceEvents();
 }
 
 export function onAuthorizationRefresh(
@@ -113,12 +124,13 @@ export function onAuthorizationRefresh(
     event: AuthorizationRefreshEvent
   ) => Promise<Record<string, string> | null>
 ): Subscription {
-  const subscription = emitter.addListener('authorizationRefresh', (data) => {
+  const mod = getNativeModule();
+  const subscription = emitter!.addListener('authorizationRefresh', (data) => {
     const json = data as string;
     const event = JSON.parse(json) as AuthorizationRefreshEvent;
     callback(event).then((headers) => {
       if (headers) {
-        NativeGeomony.updateAuthorizationHeaders(JSON.stringify(headers));
+        mod.updateAuthorizationHeaders(JSON.stringify(headers));
       }
     });
   });
@@ -128,7 +140,8 @@ export function onAuthorizationRefresh(
 }
 
 export function onHttp(callback: (event: HttpEvent) => void): Subscription {
-  const subscription = emitter.addListener('http', (data) => {
+  getNativeModule();
+  const subscription = emitter!.addListener('http', (data) => {
     const json = data as string;
     const event = JSON.parse(json) as HttpEvent;
     callback(event);
@@ -141,7 +154,8 @@ export function onHttp(callback: (event: HttpEvent) => void): Subscription {
 export function onGeofence(
   callback: (event: GeofenceEvent) => void
 ): Subscription {
-  const subscription = emitter.addListener('geofence', (data) => {
+  getNativeModule();
+  const subscription = emitter!.addListener('geofence', (data) => {
     const json = data as string;
     const event = JSON.parse(json) as GeofenceEvent;
     callback(event);
@@ -154,7 +168,8 @@ export function onGeofence(
 export function onLocation(
   callback: (location: Location) => void
 ): Subscription {
-  const subscription = emitter.addListener('location', (data) => {
+  getNativeModule();
+  const subscription = emitter!.addListener('location', (data) => {
     const json = data as string;
     const location = JSON.parse(json) as Location;
     callback(location);
@@ -165,19 +180,20 @@ export function onLocation(
 }
 
 export async function startSchedule(): Promise<State> {
-  const result = await NativeGeomony.startSchedule();
+  const result = await getNativeModule().startSchedule();
   return JSON.parse(result) as State;
 }
 
 export async function stopSchedule(): Promise<State> {
-  const result = await NativeGeomony.stopSchedule();
+  const result = await getNativeModule().stopSchedule();
   return JSON.parse(result) as State;
 }
 
 export function onSchedule(
   callback: (event: ScheduleEvent) => void
 ): Subscription {
-  const subscription = emitter.addListener('schedule', (data) => {
+  getNativeModule();
+  const subscription = emitter!.addListener('schedule', (data) => {
     const json = data as string;
     const event = JSON.parse(json) as ScheduleEvent;
     callback(event);
@@ -190,7 +206,8 @@ export function onSchedule(
 export function onActivityChange(
   callback: (event: ActivityChangeEvent) => void
 ): Subscription {
-  const subscription = emitter.addListener('activitychange', (data) => {
+  getNativeModule();
+  const subscription = emitter!.addListener('activitychange', (data) => {
     const json = data as string;
     const event = JSON.parse(json) as ActivityChangeEvent;
     callback(event);
@@ -203,7 +220,8 @@ export function onActivityChange(
 export function onMotionChange(
   callback: (event: MotionChangeEvent) => void
 ): Subscription {
-  const subscription = emitter.addListener('motionchange', (data) => {
+  getNativeModule();
+  const subscription = emitter!.addListener('motionchange', (data) => {
     const json = data as string;
     const location = JSON.parse(json) as Location;
     callback({
